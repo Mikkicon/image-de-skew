@@ -1,3 +1,4 @@
+import sys
 import cv2
 import os
 import time
@@ -6,16 +7,15 @@ import glob
 from multiprocessing import Pool, cpu_count
 import random
 
-from image_util import rotate
-
-MIN_SKEW_ANGLE = -30
-MAX_SKEW_ANGLE = 30
+from image_util import FILENAME_ANGLE_SPLITTER, MAX_SKEW_ANGLE, MIN_SKEW_ANGLE, rotate
 
 def skew(file_path, output_dir):
   image = cv2.imread(file_path)
   angle = get_random_skew_angle(MIN_SKEW_ANGLE, MAX_SKEW_ANGLE)
   rotated = rotate(image, angle, (0, 0, 0))
-  output_path = os.path.join(output_dir, f"{angle}_{os.path.basename(file_path)}")
+  filename, extension = os.path.splitext(os.path.basename(file_path))
+  output_name = f"{filename}{FILENAME_ANGLE_SPLITTER}{angle}{extension}"
+  output_path = os.path.join(output_dir, output_name)
   cv2.imwrite(output_path, rotated)
 
 def get_random_skew_angle(min: int, max: int):
@@ -44,4 +44,7 @@ def main():
   print(f"Execution took {(time.time() - start)}s")
 
 if __name__ == '__main__':
-  main()
+  source_dataset_path = sys.argv[1]
+  target_dataset_path = sys.argv[2]
+  print(source_dataset_path, target_dataset_path)
+  # main()

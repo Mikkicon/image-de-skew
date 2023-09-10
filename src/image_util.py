@@ -4,6 +4,10 @@ import math
 from typing import Tuple, Union, List
 
 
+MIN_SKEW_ANGLE = -30
+MAX_SKEW_ANGLE = 30
+FILENAME_ANGLE_SPLITTER = "_"
+
 def rotate(
         image: np.ndarray, angle: float, background: Union[int, Tuple[int, int, int]]
 ) -> np.ndarray:

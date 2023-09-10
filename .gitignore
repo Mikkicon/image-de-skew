@@ -3,3 +3,6 @@ funsd-dataset
 venv
 __pycache__
 .DS_Store
+*.zip
+.ipynb_checkpoints
+outputs

@@ -1,10 +1,6 @@
 import torch
 import torch.nn as nn
-import glob 
-import os
 import torch
-import numpy as np
-import PIL.Image as Image
 from torchvision import transforms
 
 class DeskewCNN(nn.Module):
@@ -25,21 +21,13 @@ class DeskewCNN(nn.Module):
         self.fc2 = nn.Linear(128, num_classes)
 
     def forward(self, x):
-        # print("conv1 input size:", x.size())
         x = self.conv1(x)
-        # print("relu1 input size:", x.size())
         x = self.relu1(x)
-        # print("pool1 input size:", x.size())
         x = self.pool1(x)
-        # print("conv2 input size:", x.size())
         x = self.conv2(x)
-        # print("relu2 input size:", x.size())
         x = self.relu2(x)
-        # print("pool2 input size:", x.size())
         x = self.pool2(x)
-        # print("flatten input size:", x.size())
         x = self.flatten(x)
-        # print("fc1 input size:", x.size())
         x = self.fc1(x)
         x = self.relu3(x)
         x = self.fc2(x)
@@ -48,8 +36,23 @@ class DeskewCNN(nn.Module):
 def prepare_image(image, image_size):
     transform = transforms.Compose([
         transforms.PILToTensor(),                                         # TODO How Converts a PIL Image (H x W x C) to a Tensor of shape (C x H x W).
-        transforms.ConvertImageDtype(torch.float32),                      # TODO __REMOVE__ - MAC stuff
+        transforms.ConvertImageDtype(torch.float32),                     
         transforms.Resize(image_size)                                     # resize
     ])
-    img = image.convert('L')                                              # grayscale
+    img = image.convert('L')                                              
     return transform(img)
+
+
+class MyDataset(torch.utils.data.Dataset):
+    def __init__(self, images, labels = []):
+        super(MyDataset, self).__init__()
+        self.images = images
+        self.labels = labels
+
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self, idx):
+        sample = {"data": self.images[idx]}
+        sample["target"] = self.labels[idx] if idx < len(self.labels) else []
+        return sample

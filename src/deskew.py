@@ -3,15 +3,17 @@
 import torch
 import os
 from PIL import Image, ImageOps
-from torchvision import transforms
 import glob
-from image_util import MAX_SKEW_ANGLE 
+import shutil
 
+from image_util import  INVOICES_DIR_PATH, MIN_ANGLE_ZERO_OFFSET, N_NN_OUTPUT_CLASSES, OUTPUT_DIR_PATH, TEST_DIR_PATH 
 from model import DeskewCNN, prepare_image
-from train import IMAGE_SIZE, MIN_ANGLE_ZERO_OFFSET, MyDataset
+from train import IMAGE_SIZE, MyDataset
 
 
 def deskew(model, image_paths, output_dir):
+  os.makedirs(output_dir, exist_ok=True)
+  # TODO batch size = 10 torch.utils.data.DataLoader(MyDataset(image_paths), batch_size=200)
   for image_path in image_paths:
     image = Image.open(image_path)
     img_tensor = prepare_image(image, IMAGE_SIZE)
@@ -24,12 +26,13 @@ def deskew(model, image_paths, output_dir):
 
 if __name__ == '__main__':
   loaded_state_dict = torch.load('model.pth')
-  num_classes = MIN_ANGLE_ZERO_OFFSET + MAX_SKEW_ANGLE + 1
-  model = DeskewCNN(num_classes, IMAGE_SIZE)
+  model = DeskewCNN(N_NN_OUTPUT_CLASSES, IMAGE_SIZE)
   model.load_state_dict(loaded_state_dict)
-  images_dir_path = f"{os.getcwd()}/dataset/testing_data/images"
-  image_paths = glob.glob(os.path.join(images_dir_path, "*"))
-  print(images_dir_path)
 
-  output_dir_path = f"{os.getcwd()}/outputs"
-  deskew(model, image_paths, output_dir_path)
+  shutil.rmtree(OUTPUT_DIR_PATH)
+
+  test_image_paths = glob.glob(os.path.join(TEST_DIR_PATH, "*"))
+  deskew(model, test_image_paths, OUTPUT_DIR_PATH)
+
+  invoices_image_paths = glob.glob(os.path.join(INVOICES_DIR_PATH, "*"))
+  deskew(model, invoices_image_paths, OUTPUT_DIR_PATH)

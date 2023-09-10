@@ -6,5 +6,5 @@ __pycache__
 .vscode
 *.zip
 .ipynb_checkpoints
-outputs
+output
 model.pth

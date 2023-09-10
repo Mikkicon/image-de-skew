@@ -1,17 +1,22 @@
 #!/bin/bash
 
-source_dataset_dir_name="funsd-dataset"
 
-source_dataset_path="$(pwd)/$source_dataset_dir_name"
-target_dataset_path="$(pwd)/dataset"
+RAW_DATASET_DIR_NAME="funsd-dataset"
 
-zip_path="$(pwd)/$source_dataset_dir_name.zip"
-curl https://guillaumejaume.github.io/FUNSD/dataset.zip > "$zip_path"
+rm -r "dataset"
+rm -r "$RAW_DATASET_DIR_NAME"
 
-echo "$zip_path"
-unzip "$zip_path" -d "$source_dataset_path"
+curl https://guillaumejaume.github.io/FUNSD/dataset.zip
 
-./venv/bin/python3 src/generate-dataset-skew.py "$source_dataset_path" "$target_dataset_path"
+unzip -q "$zip_path"  -d "$RAW_DATASET_DIR_NAME"
+
+if [ -d "./$RAW_DATASET_DIR_NAME/__MACOSX" ]; then
+  rm -r "./$RAW_DATASET_DIR_NAME/__MACOSX"
+  mv ./$RAW_DATASET_DIR_NAME/dataset/* ./$RAW_DATASET_DIR_NAME
+  rm -r "./$RAW_DATASET_DIR_NAME/dataset"
+fi
+
+./venv/bin/python3 src/generate-dataset-skew.py
 
 
 

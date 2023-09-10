@@ -16,7 +16,7 @@ class DeskewCNN(nn.Module):
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
         
         self.flatten = nn.Flatten()
-        self.fc1 = nn.Linear(24 * (image_size[0] // 4) * (image_size[1] // 4), 128) # TODO find correlation
+        self.fc1 = nn.Linear(24 * (image_size[0] // 4) * (image_size[1] // 4), 128)
         self.relu3 = nn.ReLU()
         self.fc2 = nn.Linear(128, num_classes)
 
@@ -35,9 +35,9 @@ class DeskewCNN(nn.Module):
 
 def prepare_image(image, image_size):
     transform = transforms.Compose([
-        transforms.PILToTensor(),                                         # TODO How Converts a PIL Image (H x W x C) to a Tensor of shape (C x H x W).
+        transforms.PILToTensor(),
         transforms.ConvertImageDtype(torch.float32),                     
-        transforms.Resize(image_size)                                     # resize
+        transforms.Resize(image_size)
     ])
     img = image.convert('L')                                              
     return transform(img)

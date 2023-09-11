@@ -28,7 +28,7 @@ if __name__ == '__main__':
   model = DeskewCNN(N_NN_OUTPUT_CLASSES, IMAGE_SIZE)
   model.load_state_dict(loaded_state_dict)
 
-  shutil.rmtree(OUTPUT_DIR_PATH)
+  shutil.rmtree(OUTPUT_DIR_PATH, True)
 
   test_image_paths = glob.glob(os.path.join(TEST_DIR_PATH, "*"))
   deskew(model, test_image_paths, OUTPUT_DIR_PATH)

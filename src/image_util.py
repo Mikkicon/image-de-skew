@@ -47,8 +47,8 @@ RAW_TEST_DIR_PATH = os.path.join(RAW_DATASET_PATH,  os.path.join('testing_data',
 
 DATASET_DIR_PATH = os.path.join(CWD, os.getenv('DATASET_DIR_NAME'))
 
-TRAIN_DIR_PATH = os.path.join(DATASET_DIR_PATH, os.getenv('TRAIN_DIR_NAME',  os.path.join('training_data', 'images')))
-TEST_DIR_PATH = os.path.join(DATASET_DIR_PATH, os.getenv('TEST_DIR_NAME',  os.path.join('testing_data', 'images') ))
+TRAIN_DIR_PATH = os.path.join(DATASET_DIR_PATH, os.path.join('training_data', 'images'))
+TEST_DIR_PATH = os.path.join(DATASET_DIR_PATH, os.path.join('testing_data', 'images') )
 
 INVOICES_DIR_PATH = os.path.join(CWD, 'invoices_rotated', 'images')
 OUTPUT_DIR_PATH = os.path.join(CWD, os.getenv('OUTPUT_DIR_NAME', 'output' ))

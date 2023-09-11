@@ -16,6 +16,8 @@ from image_util import IMAGE_SIZE, N_EPOCHS, N_NN_OUTPUT_CLASSES, TEST_DIR_PATH,
 from model import DeskewCNN, MyDataset, prepare_image
 
 def image_to_tensor(images, labels, image_path):
+    if not os.path.isfile(image_path):
+       return 
     img = Image.open(image_path)
     img_tensor = prepare_image(img, IMAGE_SIZE)
     skew_angle = get_skew_angle_from_path(image_path)
@@ -57,7 +59,7 @@ def train(model: torch.nn.Module, train_loader, optimizer, epoch):
       loss = F.nll_loss(hypothesis, y)
       loss.backward()
       if idx % 40 == 0:
-        print(f"epoch {epoch} loss {loss} hypothesis: {hypothesis.argmax(dim=1).item()} y: {y.item()}")
+        print(f"epoch {epoch}/{N_EPOCHS} loss {loss} hypothesis: {hypothesis.argmax(dim=1).item()} y: {y.item()}")
       optimizer.step()
 
 def test(model: torch.nn.Module, test_loader, device):

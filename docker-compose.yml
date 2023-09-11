@@ -3,9 +3,6 @@ version: "3.8"
 services:
   deskew:
     image: 518748727406.dkr.ecr.eu-central-1.amazonaws.com/ml/image-de-skew:latest
-    # build:
-    #   context: .
-    #   dockerfile: ./Dockerfile
     container_name: deskew
     environment:
       - RAW_DATASET_DIR_NAME=funsd-dataset

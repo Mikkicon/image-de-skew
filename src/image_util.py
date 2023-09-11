@@ -19,6 +19,8 @@ N_NN_OUTPUT_CLASSES = MIN_ANGLE_ZERO_OFFSET + MAX_SKEW_ANGLE + 1
 TRAIN_SIZE = 10
 IMAGE_SIZE = (500, 400)
 
+SKEW_FILL_COLOR = (255, 255, 255)
+
 def get_skew_angle_from_path(image_path) -> float:
     try: 
       skew_angle_str = os.path.basename(image_path).split('_')[0] if ANGLE_AT_START else os.path.basename(image_path).split('_')[-1].split('.')[0]

@@ -17,7 +17,7 @@ def deskew(model, image_paths, output_dir):
     image = Image.open(image_path)
     img_tensor = prepare_image(image, IMAGE_SIZE)
     x = [x for x in torch.utils.data.DataLoader(MyDataset([img_tensor]))][0]['data']
-    print(f"img_tensor size: {x.size()} image_path: {image_path}")
+    print(f"argmax: {model(x).argmax(dim=1)} image name: {os.path.basename(image_path)}")
     skew_angle_pred = model(x).argmax(dim=1) - MIN_ANGLE_ZERO_OFFSET
     rotated = image.rotate(skew_angle_pred, resample=Image.BICUBIC, expand=True, fillcolor=(255 // 2))
     output_path = os.path.join(output_dir, os.path.basename(image_path))

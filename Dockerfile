@@ -8,13 +8,13 @@ RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
 # move to app 
 WORKDIR app
 
-# create a virtual environment for python to isolate the dependencies 
-RUN python -m venv venv
-# enter the created virtual environment 
-RUN source venv/bin/activate
-
 # copy required libraries to container 
 COPY requirements.txt ./
+# create a virtual environment for python to isolate the dependencies 
+# RUN python -m venv venv
+# enter the created virtual environment 
+# RUN source venv/bin/activate
+
 # install the required libraries 
 RUN python -m pip install -r requirements.txt
 

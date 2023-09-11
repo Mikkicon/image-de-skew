@@ -25,19 +25,25 @@ def image_to_tensor(images, labels, image_path):
     labels.append(skew_angle)
 
 def getXy(images_dir_path):
-  manager = Manager()
-  images = manager.list()
-  labels = manager.list()
+  # manager = Manager()
+  # images = manager.list()
+  # labels = manager.list()
+  images = []
+  labels = []
   image_paths = glob.glob(os.path.join(images_dir_path, "*"))
   total_images = len(image_paths)
   if(total_images == 0):
      raise Exception(f"No images in {images_dir_path}")
   
   image_paths = list(np.random.choice(image_paths, size=TRAIN_SIZE)) if TRAIN_SIZE else image_paths
-  print(f"choosing {len(image_paths)} images from {total_images}")
+  print(f"choosing {len(image_paths)} images from {total_images} using {cpu_count()} cpus")
   
-  with Pool(cpu_count()) as pool:
-    pool.starmap(functools.partial(image_to_tensor, images, labels),[[p] for p in image_paths])
+  # Docker container halts
+  # with Pool(cpu_count()) as pool:
+  #   pool.starmap(functools.partial(image_to_tensor, images, labels),[[p] for p in image_paths])
+
+  for image_path in image_paths:
+     image_to_tensor(images, labels, image_path)
 
   print(f"Processed {len(images)} images and {len(labels)} labels")
   return (images, labels)

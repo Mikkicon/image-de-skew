@@ -45,7 +45,7 @@ def train(model, train_loader, criterion, optimizer):
       hypothesis = model(x)
       loss = criterion(hypothesis, y)
       print(f"loss {loss} hypothesis: {hypothesis.argmax(dim=1)} y: {y}")
-      optimizer.zero_grad()                                             # TODO why
+      optimizer.zero_grad()                                             
       loss.backward()
       optimizer.step()
 
@@ -80,12 +80,12 @@ def main():
   if not(len(X)) or not(len(y)) or not(len(X_test)) or not(len(y_test)):
      raise Exception(f"No train or test data for paths: {TRAIN_DIR_PATH} {TEST_DIR_PATH}")
 
-  criterion = torch.nn.CrossEntropyLoss(reduction='sum')                # TODO why cross entropy?
-  optimizer = torch.optim.SGD(model.parameters(), lr=1e-8, momentum=0.9)# TODO revise how it works
+  criterion = torch.nn.CrossEntropyLoss(reduction='sum')                
+  optimizer = torch.optim.SGD(model.parameters(), lr=1e-8, momentum=0.9)
   train_loader = torch.utils.data.DataLoader(MyDataset(X, y))
   test_loader = torch.utils.data.DataLoader(MyDataset(X_test, y_test))
   
-  scheduler = StepLR(optimizer, step_size=1) # TODO what is that
+  scheduler = StepLR(optimizer, step_size=1) 
   for epoch in range(1, N_EPOCHS + 1):
     train(model, train_loader, criterion, optimizer)
     test(model, test_loader, device)
@@ -94,5 +94,3 @@ def main():
 
 if __name__ == '__main__':
   main()
-  # TODO read about autograd
-  # TODO read about nograd

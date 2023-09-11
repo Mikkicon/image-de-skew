@@ -13,7 +13,6 @@ from train import IMAGE_SIZE, MyDataset
 
 def deskew(model, image_paths, output_dir):
   os.makedirs(output_dir, exist_ok=True)
-  # TODO batch size = 10 torch.utils.data.DataLoader(MyDataset(image_paths), batch_size=200)
   for image_path in image_paths:
     image = Image.open(image_path)
     img_tensor = prepare_image(image, IMAGE_SIZE)

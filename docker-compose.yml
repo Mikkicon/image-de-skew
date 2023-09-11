@@ -7,11 +7,8 @@ services:
     #   context: .
     #   dockerfile: ./Dockerfile
     container_name: deskew
-    volumes:
-      - ".:/app"
     environment:
       - RAW_DATASET_DIR_NAME=funsd-dataset
       - DATASET_DIR_NAME=dataset
       - TRAIN_DIR_NAME=training_data
       - TEST_DIR_NAME=testing_data
-    command: tail -f /dev/null

@@ -3,28 +3,34 @@ import torch.nn as nn
 import torch
 from torchvision import transforms
 
+from image_util import MIN_ANGLE_ZERO_OFFSET
+
 class DeskewCNN(nn.Module):
     def __init__(self, num_classes, image_size):
         super(DeskewCNN, self).__init__()
         
+        # hyperparameters
+        conv_kernel = 3
+        pool_kernel = 8
+
         # first convolution of layer expects image in grayscale and outputs 12 feature kernels
-        self.conv1 = nn.Conv2d(1, 12, kernel_size=3, stride=1, padding=1)
+        self.conv1 = nn.Conv2d(1, 6, kernel_size=conv_kernel, stride=1, padding=(conv_kernel - 1) // 2)
         self.relu1 = nn.ReLU()
-        self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.pool1 = nn.MaxPool2d(kernel_size=pool_kernel, stride=pool_kernel)
 
         # in first convolution layer we are able to distinguish separate letters
         # so we do a max pooling which comprises the first convolution layer output
         # second convolution is now able to distinguish the line angle in which the words are written
-        self.conv2 = nn.Conv2d(12, 24, kernel_size=3, stride=1, padding=1)
+        self.conv2 = nn.Conv2d(6, 12, kernel_size=conv_kernel, stride=1, padding=(conv_kernel - 1) // 2)
         self.relu2 = nn.ReLU()
-        self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
-        
+        self.pool2 = nn.MaxPool2d(kernel_size=8, stride=8)
+
         self.flatten = nn.Flatten()
         
-        self.fc1 = nn.Linear(24 * (image_size[0] // 4) * (image_size[1] // 4), 128)
+        self.fc1 = nn.Linear(12 * (image_size[0] // (pool_kernel * 8)) * (image_size[1] // (pool_kernel * 8)), 128, bias=True)
 
         self.relu3 = nn.ReLU()
-        self.fc2 = nn.Linear(128, num_classes)
+        self.fc2 = nn.Linear(128, num_classes, bias=True)
 
         print(self)
 
@@ -49,7 +55,8 @@ def prepare_image(image, image_size):
     transform = transforms.Compose([
         transforms.PILToTensor(),
         transforms.ConvertImageDtype(torch.float32),                     
-        transforms.Resize(image_size)
+        transforms.Resize(image_size, antialias=True),
+        transforms.Normalize((0.1307,), (0.3081,))
     ])
     img = image.convert('L')                                              
     return transform(img)
@@ -66,5 +73,5 @@ class MyDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         sample = {"data": self.images[idx]}
-        sample["target"] = self.labels[idx] if idx < len(self.labels) else []
+        sample["target"] = self.labels[idx] + MIN_ANGLE_ZERO_OFFSET if idx < len(self.labels) else []
         return sample

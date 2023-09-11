@@ -24,7 +24,7 @@ SKEW_FILL_COLOR = (255, 255, 255)
 def get_skew_angle_from_path(image_path) -> float:
     try: 
       skew_angle_str = os.path.basename(image_path).split('_')[0] if ANGLE_AT_START else os.path.basename(image_path).split('_')[-1].split('.')[0]
-      skew_angle = torch.tensor(float(skew_angle_str) + MIN_ANGLE_ZERO_OFFSET).to(torch.long)
+      skew_angle = torch.tensor(float(skew_angle_str)).to(torch.long)
       if(skew_angle < MIN_SKEW_ANGLE or skew_angle > MAX_SKEW_ANGLE):
          print(f"Invalid skew angle: {skew_angle}")
          return None
@@ -53,7 +53,7 @@ TEST_DIR_PATH = os.path.join(DATASET_DIR_PATH, os.getenv('TEST_DIR_NAME',  os.pa
 INVOICES_DIR_PATH = os.path.join(CWD, 'invoices_rotated', 'images')
 OUTPUT_DIR_PATH = os.path.join(CWD, os.getenv('OUTPUT_DIR_NAME', 'output' ))
 
-N_EPOCHS = int(os.getenv('N_EPOCHS',  '200'))
+N_EPOCHS = int(os.getenv('N_EPOCHS',  '20'))
 
 def rotate(
         image: np.ndarray, angle: float, background: Union[int, Tuple[int, int, int]]

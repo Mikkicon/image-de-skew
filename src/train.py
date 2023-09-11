@@ -8,16 +8,16 @@ import numpy as np
 import PIL.Image as Image
 from torchvision import transforms
 from torch.optim.lr_scheduler import StepLR
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool, Manager, cpu_count
+import functools
+import torch.optim as optim
 
 from image_util import IMAGE_SIZE, N_EPOCHS, N_NN_OUTPUT_CLASSES, TEST_DIR_PATH, TRAIN_DIR_PATH, TRAIN_SIZE, get_skew_angle_from_path
 from model import DeskewCNN, MyDataset, prepare_image
 
-def image_to_tensor(image_path, images, labels):
-    print(f"Reading {image_path}")
+def image_to_tensor(images, labels, image_path):
     img = Image.open(image_path)
     img_tensor = prepare_image(img, IMAGE_SIZE)
-    print(f"img_tensor size: {img_tensor.size()} image_path: {image_path}")
     skew_angle = get_skew_angle_from_path(image_path)
     if skew_angle == None:
        return
@@ -25,8 +25,9 @@ def image_to_tensor(image_path, images, labels):
     labels.append(skew_angle)
 
 def getXy(images_dir_path):
-  images = []
-  labels = []
+  manager = Manager()
+  images = manager.list()
+  labels = manager.list()
   image_paths = glob.glob(os.path.join(images_dir_path, "*"))
   total_images = len(image_paths)
   if(total_images == 0):
@@ -35,21 +36,25 @@ def getXy(images_dir_path):
   image_paths = list(np.random.choice(image_paths, size=TRAIN_SIZE)) if TRAIN_SIZE else image_paths
   print(f"choosing {len(image_paths)} images from {total_images}")
   
-  for image_path in image_paths:
-    image_to_tensor(image_path, images, labels)
+  with Pool(cpu_count()) as pool:
+    pool.starmap(functools.partial(image_to_tensor, images, labels),[[p] for p in image_paths])
+
+  print(f"Processed {len(images)} images and {len(labels)} labels")
   return (images, labels)
 
-def train(model, train_loader, criterion, optimizer):
+def train(model: torch.nn.Module, train_loader, optimizer, epoch):
+  model.train()
   for idx, sample in enumerate(train_loader):
       x, y = sample['data'], sample['target']
-      hypothesis = model(x)
-      loss = criterion(hypothesis, y)
-      print(f"loss {loss} hypothesis: {hypothesis.argmax(dim=1)} y: {y}")
       optimizer.zero_grad()                                             
+      hypothesis = model(x)
+      loss = F.nll_loss(hypothesis, y)
       loss.backward()
+      if idx % 40 == 0:
+        print(f"epoch {epoch} loss {loss} hypothesis: {hypothesis.argmax(dim=1).item()} y: {y.item()}")
       optimizer.step()
 
-def test(model, test_loader, device):
+def test(model: torch.nn.Module, test_loader, device):
     model.eval()
     test_loss = 0
     correct = 0
@@ -71,6 +76,8 @@ def main():
   dtype = torch.float32 if device.type == 'mps' else torch.float
   torch.set_default_dtype(dtype)
   print (f"DEVICE - {device}; DTYPE - {dtype}")
+  
+  torch.manual_seed(42)
 
   model = DeskewCNN(N_NN_OUTPUT_CLASSES, IMAGE_SIZE)
 
@@ -80,14 +87,14 @@ def main():
   if not(len(X)) or not(len(y)) or not(len(X_test)) or not(len(y_test)):
      raise Exception(f"No train or test data for paths: {TRAIN_DIR_PATH} {TEST_DIR_PATH}")
 
-  criterion = torch.nn.CrossEntropyLoss(reduction='sum')                
-  optimizer = torch.optim.SGD(model.parameters(), lr=1e-8, momentum=0.9)
+  # criterion = torch.nn.CrossEntropyLoss(reduction='sum')                
+  optimizer = optim.Adadelta(model.parameters(), lr=1.0)
   train_loader = torch.utils.data.DataLoader(MyDataset(X, y))
   test_loader = torch.utils.data.DataLoader(MyDataset(X_test, y_test))
   
-  scheduler = StepLR(optimizer, step_size=1) 
+  scheduler = StepLR(optimizer, step_size=1)
   for epoch in range(1, N_EPOCHS + 1):
-    train(model, train_loader, criterion, optimizer)
+    train(model, train_loader, optimizer, epoch)
     test(model, test_loader, device)
     scheduler.step()
   torch.save(model.state_dict(), 'model.pth')

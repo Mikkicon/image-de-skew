@@ -1,4 +1,6 @@
 
+![train_pool1](https://github.com/Mikkicon/image-de-skew/assets/29481776/4328b62d-b54d-4a3e-adab-97fcc1d0aebd)
+
 
 TASK - Create a process for turning documents into book orientation
 - Using an ML model that will __determine the angle from -30 to 30 degrees__.

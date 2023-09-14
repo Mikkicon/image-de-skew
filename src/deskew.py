@@ -5,8 +5,9 @@ import os
 from PIL import Image, ImageOps
 import glob
 import shutil
+from torchvision import transforms
 
-from image_util import  INVOICES_DIR_PATH, MIN_ANGLE_ZERO_OFFSET, N_NN_OUTPUT_CLASSES, OUTPUT_DIR_PATH, TEST_DIR_PATH 
+from image_util import  INVOICES_DIR_PATH, MIN_ANGLE_ZERO_OFFSET, N_NN_OUTPUT_CLASSES, OUTPUT_DIR_PATH, SKEW_FILL_COLOR, TEST_DIR_PATH 
 from model import DeskewCNN, prepare_image
 from train import IMAGE_SIZE, MyDataset
 
@@ -19,7 +20,7 @@ def deskew(model, image_paths, output_dir):
     x = [x for x in torch.utils.data.DataLoader(MyDataset([img_tensor]))][0]['data']
     print(f"argmax: {model(x).argmax(dim=1)} image name: {os.path.basename(image_path)}")
     skew_angle_pred = model(x).argmax(dim=1) - MIN_ANGLE_ZERO_OFFSET
-    rotated = image.rotate(skew_angle_pred, resample=Image.BICUBIC, expand=True, fillcolor=(255 // 2))
+    rotated = image.rotate(skew_angle_pred, resample=Image.BICUBIC, expand=True, fillcolor=SKEW_FILL_COLOR)
     output_path = os.path.join(output_dir, os.path.basename(image_path))
     rotated.save(output_path)
 

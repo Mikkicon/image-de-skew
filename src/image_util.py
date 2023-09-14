@@ -5,6 +5,8 @@ import torch
 import os
 from typing import Tuple, Union, List
 from dotenv import load_dotenv
+import matplotlib.pyplot as plt
+import PIL.Image as Image
 
 load_dotenv()
 
@@ -15,8 +17,9 @@ ANGLE_AT_START = False
 
 MIN_ANGLE_ZERO_OFFSET = MIN_SKEW_ANGLE if MIN_SKEW_ANGLE >= 0 else -MIN_SKEW_ANGLE
 N_NN_OUTPUT_CLASSES = MIN_ANGLE_ZERO_OFFSET + MAX_SKEW_ANGLE + 1
+TARGET_ZEROS = [0 for idx in range(0, N_NN_OUTPUT_CLASSES)]
 
-TRAIN_SIZE = None
+TRAIN_SIZE = 1
 IMAGE_SIZE = (500, 400)
 
 SKEW_FILL_COLOR = (255, 255, 255)
@@ -39,6 +42,25 @@ def get_path_with_skew_angle(file_path, angle):
     else:
         return f"{filename}{FILENAME_ANGLE_SPLITTER}{angle}{extension}"
 
+def save_plot(ys, xs = None):
+    plt.figure(figsize=(len(ys), 16))
+    if not xs:
+        xs = range(len(ys))
+    plt.plot(xs,ys,  label='My Data', marker='o', linestyle='-', color='b')
+    with open('output/losses.txt', 'w') as file:
+        file.writelines([str(x) for x in ys])
+    plt.savefig('output/line_chart.png', dpi=300) 
+
+def save_image_grid(imgs, rows, cols, name):
+    assert len(imgs) == rows*cols
+    w, h = imgs[0].size
+    grid = Image.new('RGB', size=(cols*w, rows*h))
+    grid_w, grid_h = grid.size
+    for i, img in enumerate(imgs):
+        grid.paste(img, box=(i%cols*w, i//cols*h))
+    grid.save(f"output/layers/{name}")
+
+
 CWD = os.getcwd()
 
 RAW_DATASET_PATH = os.path.join(CWD, os.getenv('RAW_DATASET_PATH'))
@@ -53,7 +75,7 @@ TEST_DIR_PATH = os.path.join(DATASET_DIR_PATH, os.path.join('testing_data', 'ima
 INVOICES_DIR_PATH = os.path.join(CWD, 'invoices_rotated', 'images')
 OUTPUT_DIR_PATH = os.path.join(CWD, os.getenv('OUTPUT_DIR_NAME', 'output' ))
 
-N_EPOCHS = int(os.getenv('N_EPOCHS',  '20'))
+N_EPOCHS = int(os.getenv('N_EPOCHS',  '1'))
 
 def rotate(
         image: np.ndarray, angle: float, background: Union[int, Tuple[int, int, int]]

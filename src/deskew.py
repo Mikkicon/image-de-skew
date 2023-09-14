@@ -7,9 +7,8 @@ import glob
 import shutil
 from torchvision import transforms
 
-from image_util import  INVOICES_DIR_PATH, MIN_ANGLE_ZERO_OFFSET, N_NN_OUTPUT_CLASSES, OUTPUT_DIR_PATH, SKEW_FILL_COLOR, TEST_DIR_PATH 
-from model import DeskewCNN, prepare_image
-from train import IMAGE_SIZE, MyDataset
+from image_util import  IMAGE_SIZE, INVOICES_DIR_PATH, MIN_ANGLE_ZERO_OFFSET, N_NN_OUTPUT_CLASSES, OUTPUT_DIR_PATH, SKEW_FILL_COLOR, TEST_DIR_PATH, MyDataset, prepare_image
+from model import DeskewCNN 
 
 
 def deskew(model, image_paths, output_dir):
